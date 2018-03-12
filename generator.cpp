@@ -11,6 +11,7 @@
 #include <ctime>
 #include <memory>
 #include <unistd.h>
+#define min(x,y) ((x) > (y) ? (y) : (x))
 #define IGN_RET(x) if (x);
 
 using namespace std;
@@ -183,7 +184,7 @@ void makeInit()
 
 vector<RelationId> makeRelations()
 {
-	uint64_t num_relation = randomRange(2, 4);
+	uint64_t num_relation = randomRange(2, min(kMaxNumPredicate+1, 4));
 	vector<RelationId> relation_ids;
 	for (RelationId i = 0; i < kNumTable; ++i){
 		relation_ids.emplace_back(i);
@@ -307,10 +308,11 @@ string makeQuery()
 	oss << '|';
 	string predicates = makePredicates(relation_ids);
 	oss << predicates;
-	if (!predicates.empty()){
+	string filters = makeFilters(relation_ids);
+	if (!predicates.empty() && !filters.empty()){
 		oss << '&';
 	}
-	oss << makeFilters(relation_ids);
+	oss << filters;
 	oss << '|';
 	oss << makeSelects(relation_ids);
 	return oss.str();
